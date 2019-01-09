@@ -1,0 +1,36 @@
+#include "pch.h"
+#include <iostream>
+
+using namespace std;
+class Rectangle {
+public:
+	int width;
+	int height;
+	virtual void display() {
+		cout << this->width << " " << this->height;
+	}
+};
+
+
+class RectangleArea : public Rectangle {
+public:
+	void read_input() {
+		cin >> this->width;
+
+		cin >> this->height;
+
+	}
+	void display() {
+		cout << endl << this->width*this->height;
+	}
+};
+
+int main()
+{
+
+	RectangleArea r_area;
+	r_area.read_input();
+	r_area.Rectangle::display();
+	r_area.display();
+	return 0;
+}
