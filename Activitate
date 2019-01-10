@@ -1,0 +1,271 @@
+
+#include "pch.h"
+#include <iostream>
+#include<string>
+using namespace std;
+enum TIP_REPETITIE {
+	ZILNICA, SAPTAMANALA, LUNARA
+};
+class errDurata :public exception {
+
+};
+class errDenumire : public exception {
+
+};
+class Activitate{
+	int id;
+	static int NR_ACTIVITATI;
+	char* denumire;
+	int durata;
+	TIP_REPETITIE periodicitate;
+public:
+	string toString() {
+		switch (this->periodicitate) {
+		case ZILNICA:
+			return "ZILNICA";
+		case SAPTAMANALA:
+			return "SAPTAMANALA";
+		case LUNARA:
+			return "LUNARA";
+		}
+	}
+	Activitate():id(NR_ACTIVITATI) {
+		this->denumire = new char[strlen("Anonim") + 1];
+		strcpy(this->denumire, "Anonim");
+		this->durata = 0;
+		this->periodicitate = ZILNICA;
+	}
+	~Activitate() {
+		if (this->denumire) { delete[] this->denumire; }
+		NR_ACTIVITATI--;
+	}
+	Activitate(char* den, int durata, TIP_REPETITIE tip) :id(NR_ACTIVITATI) {
+		if (den) {
+			this->denumire = new char[strlen(den) + 1];
+			strcpy(this->denumire, den);
+		}
+		if (durata) {
+			this->durata = durata;
+		}
+		this->periodicitate = tip;
+		NR_ACTIVITATI++;
+	}
+	Activitate(const Activitate& a):id(NR_ACTIVITATI) {
+		if (a.durata) {
+			this->durata = a.durata;
+		}
+		if (a.denumire) {
+			this->denumire = new char[strlen(a.denumire) + 1];
+			strcpy(this->denumire, a.denumire);
+		}
+		NR_ACTIVITATI++;
+		this->periodicitate = a.periodicitate;
+	}
+	Activitate& operator=(const Activitate& a) {
+		if (this->denumire) { delete[] this->denumire; }
+		if (a.durata) {
+			this->durata = a.durata;
+		}
+		if (a.denumire) {
+			this->denumire = new char[strlen(a.denumire) + 1];
+			strcpy(this->denumire, a.denumire);
+		}
+		this->periodicitate = a.periodicitate;
+		return *this;
+	}
+	friend ostream& operator<<(ostream& out, Activitate& a) {
+		out << "Denumire: " << a.denumire << endl;
+		out << "Id: " << a.id << endl;
+		out << "Durata: " << a.durata << endl;
+		out << "Periodicitate: " << a.toString() << endl;
+		return out;
+	}
+	friend istream& operator>>(istream& in, Activitate& a) {
+		cout << "Denumire: ";
+		char den[50];
+		in.getline(den, 50);
+		if (a.denumire) { delete[] a.denumire; }
+		a.denumire = new char[strlen(den) + 1];
+		strcpy(a.denumire, den);
+		cout << "Id: ";
+		in >> a.id;
+		cout << "Durata: ";
+		in >> a.durata;
+		in.ignore();
+		cout << "Periodicitate: ";
+		char var[20];
+		in.getline(var, 20);
+		if (strcmp(var, "SAPTAMANALA") == 0 || strcmp(var, "1") == 0) {
+			a.periodicitate = SAPTAMANALA;
+		}
+		if (strcmp(var, "ZILNICA") == 0 || strcmp(var, "0") == 0) {
+			a.periodicitate = ZILNICA;
+		}
+		if (strcmp(var, "LUNARA") == 0 || strcmp(var, "2") == 0) {
+			a.periodicitate = LUNARA;
+		}
+		return in;
+	}
+	Activitate& operator+=(int var) {
+		if (this->durata + var < 24 * 365) {
+			this->durata += var;
+		}
+		return *this;
+	}
+	string operator !() {
+		if (this->periodicitate != LUNARA) {
+			return "Activitatea nu este lunara.";
+		}
+		else {
+			return "Activitatea este lunara.";
+		}
+	}
+	bool operator == (Activitate& a) {
+		if (this->id == a.id && this->durata == a.durata) {
+			return 1;
+		}
+		else {
+			return 0;
+		}
+	}
+	void setDurata(int dur) {
+		if ((dur < 1) || (dur>24 * 365)) {
+			throw errDurata();
+		}
+		this->durata = dur;
+		
+	}
+	void setDenumire(char* d) {
+		if (d == NULL || strlen(d) < 4) {
+			throw errDenumire();
+		}
+		if (this->denumire) { delete[] this->denumire; }
+		this->denumire = new char[strlen(d) + 1];
+		strcpy(this->denumire, d);
+	}
+	float getCostActivitate(float tarifOrar) {
+
+	}
+};
+
+class Persoana {
+	char nume[50];
+public:
+	Persoana() {
+		strcpy(this->nume, "Anonim");
+	}
+	Persoana(char per[50]) {
+		strcpy(this->nume, per);
+	}
+	Persoana(const Persoana& per) {
+		strcpy(this->nume, per.nume);
+	}
+	Persoana& operator= (const Persoana& per) {
+		strcpy(this->nume, per.nume);
+		return *this;
+	}
+	char getNume() {
+		return this->nume[50];
+	}
+	friend ostream& operator<<(ostream& out, Persoana& p);
+	
+};
+ostream& operator<<(ostream& out, Persoana& p) {
+	out << "Nume: " << p.nume << endl;
+	return out;
+}
+class Etapa {
+	Persoana* persoane;
+	int nr;
+	Activitate activitate;
+public:
+	Etapa(Activitate activitate) {
+		this->nr = 0;
+		this->persoane = NULL;
+		this->activitate = Activitate(activitate);
+	}
+	friend ostream& operator << (ostream& out, Etapa& a);
+	void adaugaPersoana(char nume[50]) {
+		Persoana* copy = new Persoana[this->nr + 1];
+		for (int i = 0; i < this->nr; i++) {
+			copy[i] = persoane[i];
+		}
+			//if (*nume == (this->persoane[i].getNume())) {
+				if (this->persoane) { delete[] this->persoane; }
+				this->persoane = copy;
+				this->persoane[this->nr] = Persoana(nume);
+				this->nr++;
+		
+	}
+	Etapa& operator--() {
+		Persoana* copy = new Persoana[this->nr - 1];
+		for (int i = 0; i < this->nr; i++) {
+			copy[i] = persoane[i];
+		}
+		this->persoane = copy;
+		nr--;
+		return*this;
+	}
+};
+ostream& operator << (ostream& out, Etapa& a) {
+	out << "Nr persoane: " << a.nr << endl;
+	out << "Activitate: " << a.activitate << endl;
+	if (a.persoane) {
+		out << "Persoane: " << endl;
+		for (int i = 0; i < a.nr; i++) {
+			out << a.persoane[i] << endl;
+		}
+	}
+	return out;
+}
+class InterfataActivitate {
+public:
+	virtual float getCostActivitate(float tarifOrar) = 0;
+	void afisareEchipa() {
+		cout << "Ce?";
+	}
+};
+int Activitate::NR_ACTIVITATI = 1;
+void main() {
+	char def[20] = "Definire echipa";
+	Activitate a1(def, 10, LUNARA);
+	Activitate a2 = a1;
+	cin >> a2;
+	cout << a1 << endl << a2 << endl;
+	a2 += 100;
+	cout << !(a1);
+	if (a1 == a2) {
+		cout<<"Activitatile au acelasi id si aceeasi durata.";
+	}
+	else {
+		cout<< "Activitatile nu au acelasi id si aceeasi durata.";
+	}
+	Etapa etapa(a2);
+	cout << etapa;
+	char aux[30] = "Ionescu";
+	etapa.adaugaPersoana(aux);
+	cout << etapa;
+	//etapa.adaugaPersoana(aux);
+	--etapa;
+	cout << etapa;
+	char te[3] = "te";
+	try {
+		a2.setDenumire(te);
+	}
+	catch (errDenumire) {
+		cout <<endl<< "Denumirea nu corecta!";
+	}
+	catch (...) {
+		cout << endl << "Ai eroare.";
+	}
+	try {
+		a2.setDurata(0);
+	}
+	catch (errDurata) {
+		cout << endl<<"Nu este buna durata!";
+	}
+	catch (...) {
+		cout << endl << "Ai eroare.";
+	}
+	
+}
