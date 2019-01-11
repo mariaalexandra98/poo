@@ -1,0 +1,415 @@
+// gradinaZOO.cpp : This file contains the 'main' function. Program execution begins and ends there.
+//Sa se implementeze o solutie C++ care sa gestioneze o gradina zoologica. 
+//Pentru rezolvarea problemei se vor utiliza cel putin urmatoarele concepte de POO : 
+//abstractizare, mostenire, interfata, clase template,
+//stl - uri
+
+#include "pch.h"
+#include <iostream>
+#include<string>
+#include<string>
+#include<vector>
+#include<list>
+#include<set>
+#include<map>
+using namespace std;
+enum TipAnimal {
+	PROTEJAT, NEPROTEJAT 
+};
+class ICare {
+public:
+	virtual int getNrIngrijitori() = 0;
+	virtual void suplimentareIngrijitori() = 0;
+}; 
+class Animale {
+protected:
+	const int nrAnimale;
+	static int contor;
+	string denumire;
+	TipAnimal tip;
+	char* specie;
+	int nrIngrijitori;
+	virtual int ani() = 0;
+	//virtual friend ostream& operator<<(ostream& out, Animale& s) = 0;
+public:
+	Animale():nrAnimale(contor) {
+		contor++;
+		this->denumire = "Anon";
+		this->tip = NEPROTEJAT;
+		this->specie = new char[strlen("Anon") + 1];
+		strcpy(this->specie, "Anon");
+		this->nrIngrijitori = 0;
+	}
+	Animale(string den, TipAnimal tip, char* species, int ingrijitori):nrAnimale(contor) {
+		contor++;
+		//if (this->denumire.length() > 1) {
+			this->denumire = den;
+		//}
+		if (species) {
+			this->specie = new char[strlen(species) + 1];
+			strcpy(this->specie, species);
+		}
+		if (ingrijitori) {
+			this->nrIngrijitori = ingrijitori;
+		}
+	}
+	~Animale() {
+		if (this->specie) { delete[] this->specie; }
+		contor--;
+	}
+	string toString() {
+		switch (this->tip) {
+		case PROTEJAT:
+			return "PROTEJAT";
+		case NEPROTEJAT:
+			return "NEPROTEJAT";
+		}
+	}
+	virtual void afisare() {
+		cout << "Afisare animal: " << endl;
+		cout << "Id: " << this->nrAnimale << endl;
+		cout << "Denumire: " << this->denumire << endl;
+		cout << "Tip: " << toString() << endl;
+		cout << "Specie: " << this->specie << endl;
+		cout << "Ingrijitori: " << this->nrIngrijitori << endl;
+	}
+	friend ostream& operator<<(ostream& out, Animale& s) {
+		out << "Afisare animal: " << endl;
+		out << "Id: " << s.nrAnimale << endl;
+		out << "Denumire: " << s.denumire << endl;
+		out << "Tip: " << s.toString() << endl;
+		out << "Specie: " << s.specie << endl;
+		out << "Ingrijitori: " << s.nrIngrijitori << endl;
+		return out;
+	}
+	Animale(const Animale& a):nrAnimale(contor) {
+		contor++;
+		//if (a.denumire.length()>2) {
+			this->denumire = a.denumire;
+		if (a.specie) {
+			this->specie = new char[strlen(a.specie) + 1];
+			strcpy(this->specie, a.specie);
+		}
+		if (a.nrIngrijitori) {
+			this->nrIngrijitori = a.nrIngrijitori;
+		}
+	}
+	Animale& operator=(const Animale& a) {
+		if (this->specie) { delete[] this->specie; }
+		contor++;
+		//if (a.denumire.length() > 2) {
+			this->denumire = a.denumire;
+		
+		if (a.specie) {
+			this->specie = new char[strlen(a.specie) + 1];
+			strcpy(this->specie, a.specie);
+		}
+		if (a.nrIngrijitori) {
+			this->nrIngrijitori = a.nrIngrijitori;
+		}
+		return *this;
+	}
+};
+class Salbatic : public Animale, public ICare {
+	int nrSpecimeneRamase;
+	char* provenienta;
+public:
+	Salbatic() :Animale() {
+		this->nrSpecimeneRamase = 0;
+		this->provenienta = new char[strlen("Incert") + 1];
+		strcpy(this->provenienta, "Incert");
+	}
+	Salbatic(int nr, char* provenienta, string den, TipAnimal tip, char* species, int ingrijitori)
+		: Animale(den, tip, species, ingrijitori) {
+		if (nr) {
+			this->nrSpecimeneRamase = nr;
+		}
+		if (provenienta) {
+			this->provenienta = new char[strlen(provenienta) + 1];
+			strcpy(this->provenienta, provenienta);
+		}
+	}
+	~Salbatic() {
+		if (this->provenienta) { delete[] this->provenienta; }
+	}
+	Salbatic(const Salbatic& s) :Animale(s) {
+		if (s.nrSpecimeneRamase) {
+			this->nrSpecimeneRamase = s.nrSpecimeneRamase;
+		}
+		if (s.provenienta) {
+			this->provenienta = new char[strlen(s.provenienta) + 1];
+			strcpy(this->provenienta, s.provenienta);
+		}
+	}
+	Salbatic& operator=(const Salbatic& s) {
+		if (this->provenienta) { delete[] this->provenienta; }
+		if (s.nrSpecimeneRamase) {
+			this->nrSpecimeneRamase = s.nrSpecimeneRamase;
+		}
+		if (s.provenienta) {
+			this->provenienta = new char[strlen(s.provenienta) + 1];
+			strcpy(this->provenienta, s.provenienta);
+		}
+		if (s.denumire.length() > 2) {
+			this->denumire = s.denumire;
+		}
+		if (s.specie) {
+			this->specie = new char[strlen(s.specie) + 1];
+			strcpy(this->specie, s.specie);
+		}
+		if (s.nrIngrijitori) {
+			this->nrIngrijitori = s.nrIngrijitori;
+		}
+		return *this;
+	}
+	int ani() {
+		return 3;
+	}
+	int getNrIngrijitori() {
+		return this->nrIngrijitori;
+	}
+	virtual void suplimentareIngrijitori() {
+		if (this->tip == PROTEJAT && this->nrIngrijitori <= 1 && this->nrAnimale > 2) {
+			this->nrIngrijitori += 3;
+		}
+	}
+	 void afisare() {
+		 cout << "Afisare animal: " << endl;
+		 cout << "Id: " << this->nrAnimale << endl;
+		 cout << "Denumire: " << this->denumire << endl;
+		 cout << "Tip: " << this->toString() << endl;
+		 cout << "Specie: " << this->specie << endl;
+		 cout << "Ingrijitori: " << this->nrIngrijitori << endl;
+		 cout << "Afisare animal salbatic: " << endl;
+		 cout << "Nr specimene ramase: " << this->nrSpecimeneRamase << endl;
+		 cout << "Provenienta: " << this->provenienta << endl;
+	}
+	 friend ostream& operator<<(ostream& out, Salbatic& s) {
+		 out << "Afisare animal salbatic: " << endl;
+		 out << "Nr specimene ramase: " << s.nrSpecimeneRamase << endl;
+		 out << "Provenienta: " << s.provenienta << endl;
+		 out << "Afisare animal: " << endl;
+		 out << "Id: " << s.nrAnimale << endl;
+		 out << "Denumire: " << s.denumire << endl;
+		 out << "Tip: " << s.toString() << endl;
+		 out << "Specie: " << s.specie << endl;
+		 out << "Ingrijitori: " << s.nrIngrijitori << endl;
+		 return out;
+	 }
+
+};
+class Domestic:public Animale, public ICare {
+	bool istoricStapan;
+	bool pedigree;
+public:
+	Domestic() :Animale() {
+		this->istoricStapan = false;
+		this->pedigree = false;
+	}
+	Domestic(bool istoric, bool pedig, char* provenienta, string den, TipAnimal tip, char* species, int ingrijitori)
+		: Animale(den, tip, species, ingrijitori) {
+		this->istoricStapan = istoric;
+		this->pedigree = pedig;
+	}
+	Domestic(const Domestic& source) :Animale(source) {
+		this->istoricStapan = source.istoricStapan;
+		this->pedigree = source.pedigree;
+	}
+	Domestic& operator=(const Domestic& source) {
+		this->istoricStapan = source.istoricStapan;
+		if (source.denumire.length() > 2) {
+			this->denumire = source.denumire;
+		}
+		if (source.specie) {
+			this->specie = new char[strlen(source.specie) + 1];
+			strcpy(this->specie, source.specie);
+		}
+		if (source.nrIngrijitori) {
+			this->nrIngrijitori = source.nrIngrijitori;
+		}
+		this->pedigree = source.pedigree;
+		return *this;
+	}
+	int ani() {
+		return 5;
+	}
+	int getNrIngrijitori() {
+		return this->nrIngrijitori;
+	}
+	virtual void suplimentareIngrijitori() {
+		if ( this->nrIngrijitori <= 1 && this->nrAnimale > 2) {
+			this->nrIngrijitori += 2;
+		}
+	}
+	string toStringPed() {
+		switch (this->pedigree) {
+		case 1:
+			return "Pedigree valabil.";
+		case 0:
+			return "Nu exista pedigree.";
+		}
+	}
+	string toStringStapan() {
+		switch (this->istoricStapan) {
+		case 1:
+			return "A avut stapan. ";
+		case 0:
+			return "Nu a mai avut stapan.";
+		}
+	}
+
+	void afisare() {
+		cout << "Afisare animal: " << endl;
+		cout << "Id: " << this->nrAnimale << endl;
+		cout << "Denumire: " << this->denumire << endl;
+		cout << "Tip: " << this->toString() << endl;
+		cout << "Specie: " << this->specie << endl;
+		cout << "Ingrijitori: " << this->nrIngrijitori << endl;
+		cout << "Afisare animal domestic: " << endl;
+		cout << "Stapan anterior: " << toStringStapan() << endl;
+		cout << "Pedigree: " << toStringPed() << endl;
+
+	}
+	friend ostream& operator<<(ostream& out, Domestic& s) {
+		out << "Afisare animal domestic: " << endl;
+		out << "Stapan anterior: " << s.toStringStapan() << endl;
+		out << "Pedigree: " << s.toStringPed() << endl;
+		out << "Afisare animal: " << endl;
+		out << "Id: " << s.nrAnimale << endl;
+		out << "Denumire: " << s.denumire << endl;
+		out << "Tip: " << s.toString() << endl;
+		out << "Specie: " << s.specie << endl;
+		out << "Ingrijitori: " << s.nrIngrijitori << endl;
+		return out;
+	}
+};
+class gradinaZoo {
+	int nrAnimale;
+	Animale** animals;
+	float costBilet;
+public:
+	gradinaZoo() {
+		this->nrAnimale = 0;
+		this->animals = NULL;
+		this->costBilet = 0;
+	}
+	gradinaZoo(int nr, Animale** a, float cost) {
+		if (nr) {
+			this->nrAnimale = nr;
+		}
+		if (cost > 5) {
+			this->costBilet = cost;
+		}
+		this->animals = new Animale*[this->nrAnimale];
+		for (int i = 0; i < this->nrAnimale; i++) {
+			this->animals[i] = a[i];
+		}
+	}
+	~gradinaZoo() {
+		if (this->animals) { delete[] this->animals; }
+	}
+	gradinaZoo(const gradinaZoo& g) {
+		this->nrAnimale = g.nrAnimale;
+		this->costBilet = g.costBilet;
+		this->animals = new Animale*[g.nrAnimale];
+		for (int i = 1; i < this->nrAnimale; i++) {
+			this->animals[i] = g.animals[i];
+		}
+	}
+	gradinaZoo& operator=(const gradinaZoo& g) {
+		if (this->animals) { delete[] this->animals; }
+		this->nrAnimale = g.nrAnimale;
+		this->costBilet = g.costBilet;
+		this->animals = new Animale*[this->nrAnimale];
+		for (int i = 1; i < this->nrAnimale; i++) {
+			this->animals[i] = g.animals[i];
+		}
+		return *this;
+	}
+	friend ostream& operator<<(ostream& out, gradinaZoo& g) {
+		out << "Gradina zoo afisare: " << endl;
+		out << "Pret bilet: " << g.costBilet << endl;
+		out << "Numar animale: " << g.nrAnimale << endl;
+		out << "Animale: ";
+		for (int i = 0; i < g.nrAnimale; i++) {
+			out << *g.animals[i] << endl;
+		}
+		return out;
+	}
+
+};
+int Animale::contor = 1;
+void main() {
+	char lup[4] = "Lup";
+	char canis[6] = "canis";
+	char prov[10] = "Romania";
+	char prv[10] = "Brazilie";
+	char spec[30] = "Leontopithecus rosalia ";
+	char iepure[20] = "Lophoriade";
+	char cal[20] = "Equus caballus";
+	char altaSpecie[25] = "Leopardus jacobita";
+	Salbatic s1(3989, prov, "lup", NEPROTEJAT, canis, 2);
+	Salbatic s2 (s1);
+	Salbatic s3(4016, prv, "maimuta leu roscata", PROTEJAT, spec, 1);
+	Salbatic* s4;
+	s4 = new Salbatic(539, prv, "pisica montana andina", PROTEJAT, altaSpecie, 3);
+	s1.afisare();
+	cout << endl << s2<<endl << s3<<endl << *s4;;
+	Domestic d1(1, 1, prov, "iepure", NEPROTEJAT, iepure, 1);
+	Domestic d2;
+	 d2 = d1;
+	Domestic d3(false, true, prov, "cal", NEPROTEJAT, cal, 2);
+	Domestic d4 = d3;
+	d1.afisare();
+	cout << d2 << d3 << d4<<endl;
+	Animale* a1 = &s2;
+	Animale* a2 = &d1;
+	a1->afisare();
+	a2->afisare();
+	cout <<endl<< *a2;
+	ICare* animale[5] = { &s1, &s2, &s3, &d1, &d2 };
+	for (int i = 0; i < 5; i++) {
+		cout << "Numar ingrijitori: " << animale[i]->getNrIngrijitori() << endl;
+		animale[i]->suplimentareIngrijitori();
+		cout << "Numar ingrijitori curent: " << animale[i]->getNrIngrijitori() << endl;
+	}
+	Animale* vect[6]={ &s1, &s2, &s3, s4, &d1, &d2 };
+	gradinaZoo g(6, vect, 10);
+	Animale* vec[3] = { &s1, &s2, &s3 };
+	gradinaZoo g2(3, vec, 23);
+	gradinaZoo g3 = g2;
+	gradinaZoo g4(g);
+	cout << endl << g;
+//	vector<gradinaZoo>v;
+//	v.push_back(g);
+//	v.push_back(g2);
+//	v.push_back(g3);
+//	v.push_back(g4);
+//	for (int i = 0; i < 4; i++) {
+//		//cout << v[i] << endl;
+//	}
+//	list<Domestic>d;
+//	d.push_back(d1);
+//	d.push_back(d2);
+//	d.push_front(d3);
+//	d.push_front(d4);
+//	list<int>::iterator it2;
+//	//for (it2 = d.begin(); it2 != d.end(); it2++) {
+//		cout << *it2 << endl;
+////	}
+//	map<int, Salbatic>m;
+//	m[1] = s1;
+//	m[2] = s2;
+//	m[3] = s3;
+//	m[4] = *s4;
+//	map<int, Salbatic>::reverse_iterator it3;
+//	for (it3 = m.rbegin(); it3 != m.rend(); it3++)
+//		cout << it3->first << " " << it3->second;
+//	set<Salbatic>p;
+//	p.insert(s1);
+//	p.insert(s2);
+//	set<Salbatic>::iterator itt;
+//	for (itt = p.begin(); itt != p.end(); itt++) {
+//		cout << *itt << endl;
+//	}
+}
